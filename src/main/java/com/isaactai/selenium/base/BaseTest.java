@@ -16,10 +16,11 @@ public class BaseTest {
     @BeforeClass
     public void setUp() {
         // Initialize the WebDriver instance here: ChromeDriver
-        System.setProperty("webdriver.chrome.driver", "/opt/homebrew/bin/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "/Users/tisaac/chromedriver/mac_arm-122.0.6261.128/chromedriver-mac-arm64/chromedriver");
 
         // Configure Chrome Driver options
         ChromeOptions options = new ChromeOptions();
+        options.setBinary("/Users/tisaac/chrome/mac_arm-122.0.6261.128/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
         options.addArguments("--start-maximized"); // Maximize browser window
         options.addArguments("--disable-notifications"); // Disable pop-up notifications
 
