@@ -1,20 +1,29 @@
 package com.isaactai.selenium.base;
 
+import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+
+import java.util.Set;
 
 /**
  * @author tisaac
  */
 public class BaseTest {
+    protected static final Logger logger = LoggerFactory.getLogger(MicrosoftLoginPage.class);
     protected WebDriver driver; // WebDriver instance used for all tests
+    protected Set<Cookie> savedCookies; // Cookies to be saved for later use
 
     // BeforeClass: Runs before each test class execution. Initializes the WebDriver.
-    @BeforeClass
+    @BeforeMethod
     public void setUp() {
+        logger.debug("=== Initialize Web Driver ===");
         // Initialize the WebDriver instance here: ChromeDriver
         System.setProperty("webdriver.chrome.driver", "/Users/tisaac/chromedriver/mac_arm-122.0.6261.128/chromedriver-mac-arm64/chromedriver");
 
@@ -27,8 +36,9 @@ public class BaseTest {
         driver = new ChromeDriver(options);
     }
 
-    @AfterClass
+    @AfterMethod
     public void tearDown() {
+        logger.debug("=== tearDown() triggered ===");
         // Close the browser after each test class execution
         if (driver != null) {
             driver.quit();

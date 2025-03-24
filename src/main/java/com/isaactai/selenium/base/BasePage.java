@@ -1,19 +1,18 @@
 package com.isaactai.selenium.base;
 
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * BasePage class provides common methods for interacting with web elements.
@@ -36,7 +35,9 @@ public class BasePage {
     public void click(By locator) {
         // By is a locator strategy used in Selenium to find elements on a webpage.
         WebElement element = waitForElementToBeClickable(locator);
+        ScreenshotUtil.takeScreenshot(driver, "before_click" + sanitize(locator.toString()));
         element.click();
+        ScreenshotUtil.takeScreenshot(driver, "after_click" + sanitize(locator.toString()));
     }
 
     // Enter text
@@ -63,8 +64,10 @@ public class BasePage {
     }
 
     // Select from dropdown
-    public void selectFromDropdown(By locator, String option) {
-        // TODO: finished this select from drop down method
+    public void selectFromDropdown(By locator, String item) {
+        WebElement dropdown = waitUntilVisible(locator);
+        Select select = new Select(dropdown);
+        select.selectByVisibleText(item);
     }
 
     // Check if an element is present
@@ -78,8 +81,8 @@ public class BasePage {
     }
 
     // Wait until an element is available
-    public void waitUntilVisible(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    public WebElement waitUntilVisible(By locator) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
     public WebElement waitForElementToBeClickable(By locator) {
@@ -89,18 +92,6 @@ public class BasePage {
     public void scrollToElement(By locator) {
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-    }
-
-    // When a website contains iframes, Selenium cannot directly interact with elements inside the iframe unless you switch into it first.
-    // Duo authentication appears inside an iframe. Selenium must switch to the iframe to interact with its elements.
-    public void switchToFrame(By locator) {
-        WebElement frameElement = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        driver.switchTo().frame(frameElement);
-    }
-
-    // Once authentication is done, Selenium must switch back to the main content.
-    public void switchToDefaultContent() {
-        driver.switchTo().defaultContent();
     }
 
     public void switchToNewWindow() {
@@ -123,20 +114,7 @@ public class BasePage {
         }
     }
 
-    // CDP (Chrome DevTools Protocol) PDF Export
-    public void saveCurrentPageAsPDF(String filePath) {
-        if (!(driver instanceof ChromeDriver)) {
-            throw new UnsupportedOperationException("PDF export requires ChromeDriver.");
-        }
-
-        Map<String, Object> printOptions = new HashMap<>();
-        printOptions.put("path", filePath);
-        printOptions.put("printBackground", true);
-
-        ((ChromeDriver) driver).executeCdpCommand("Page.printToPDF", printOptions);
-    }
-
-    public void saveCookies() {
-
+    public String sanitize(String input) {
+        return input.replaceAll("[^a-zA-Z0-9]", "_");
     }
 }
