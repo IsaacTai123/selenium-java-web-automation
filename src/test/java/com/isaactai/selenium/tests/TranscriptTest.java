@@ -25,6 +25,8 @@ public class TranscriptTest extends BaseTest {
     @BeforeMethod
     public void setUpPage() {
         logger.debug("=== Set up Transcript Test triggered ===");
+        test = extent.createTest("Transcript Scenario");
+
         MicrosoftLoginPage microsoftLoginPage = new MicrosoftLoginPage(driver);
         driver.get("https://about.me.northeastern.edu/home/"); // Open the target URL
         microsoftLoginPage.click(hubLoginButton);
@@ -41,18 +43,33 @@ public class TranscriptTest extends BaseTest {
 
     @Test
     public void testTranscript() throws Exception {
-        transcriptPage.selectTranscriptOptions("Graduate", "Audit Transcript");
-        transcriptPage.waitForTranscriptShow();
+        try {
+            transcriptPage.selectTranscriptOptions("Graduate", "Audit Transcript");
+            transcriptPage.waitForTranscriptShow();
 
-        String pdfPath = System.getProperty("user.dir") + "/downloads/academic transcript.pdf";
-        transcriptPage.saveCurrentPageAsPDF(pdfPath);
+            String pdfPath = System.getProperty("user.dir") + "/downloads/academic transcript.pdf";
+            transcriptPage.saveCurrentPageAsPDF(pdfPath);
 
-        File file = new File(pdfPath);
-        PDDocument document = PDDocument.load(file);
-        PDFTextStripper pdfStripper = new PDFTextStripper();
-        String text = pdfStripper.getText(document);
-        document.close();
+            File file = new File(pdfPath);
+            PDDocument document = PDDocument.load(file);
+            PDFTextStripper pdfStripper = new PDFTextStripper();
+            String text = pdfStripper.getText(document);
+            document.close();
 
-        Assert.assertTrue(text.contains("Curriculum Information"), "PDF should contain 'Curriculum Information'");
+            // Add Expected vs Actual to the report
+            String expected = "Curriculum Information";
+            boolean contentMatched = text.contains(expected);
+
+            test.info("Expected: The transcript PDF should contain the phrase: \"" + expected + "\"");
+            test.info("Actual: " + (contentMatched
+                    ? "The phrase \"" + expected + "\" was found in the transcript."
+                    : "The phrase \"" + expected + "\" was NOT found in the transcript."));
+
+            Assert.assertTrue(text.contains("Curriculum Information"), "PDF should contain 'Curriculum Information'");
+            test.pass("Transcript PDF verification passed.\n");
+        } catch (Exception e) {
+            test.fail("Test failed due to exception: " + e.getMessage());
+            Assert.fail(e.getMessage());
+        }
     }
 }

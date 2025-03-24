@@ -1,6 +1,9 @@
 package com.isaactai.selenium.base;
 
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import com.isaactai.selenium.utils.ExtentReportManager;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -8,7 +11,9 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 
 import java.util.Set;
 
@@ -19,6 +24,21 @@ public class BaseTest {
     protected static final Logger logger = LoggerFactory.getLogger(MicrosoftLoginPage.class);
     protected WebDriver driver; // WebDriver instance used for all tests
     protected Set<Cookie> savedCookies; // Cookies to be saved for later use
+
+    protected static ExtentReports extent; // ExtentReports instance for reporting
+    protected static ExtentTest test;
+
+    @BeforeSuite
+    public void setUpReport() {
+        extent = ExtentReportManager.getInstance();
+    }
+
+    @AfterSuite
+    public void flushReport() {
+        if (extent != null) {
+            extent.flush(); // Write everything to HTML
+        }
+    }
 
     // BeforeClass: Runs before each test class execution. Initializes the WebDriver.
     @BeforeMethod
