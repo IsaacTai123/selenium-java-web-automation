@@ -1,12 +1,19 @@
 package com.isaactai.selenium.base;
 
+import com.isaactai.selenium.pages.MicrosoftLoginPage;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * BasePage class provides common methods for interacting with web elements.
@@ -14,8 +21,10 @@ import java.time.Duration;
  * @author tisaac
  */
 public class BasePage {
+    protected static final Logger logger = LoggerFactory.getLogger(MicrosoftLoginPage.class);
     protected WebDriver driver; // WebDriver instance used for all tests
     protected WebDriverWait wait; // WebDriverWait instance for explicit waits
+    protected String originalWindow;
 
     // Constructor to initialize WebDriver and WebDriverWait
     public BasePage(WebDriver driver) {
@@ -53,6 +62,11 @@ public class BasePage {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
     }
 
+    // Select from dropdown
+    public void selectFromDropdown(By locator, String option) {
+        // TODO: finished this select from drop down method
+    }
+
     // Check if an element is present
     public boolean isElementPresent(By locator) {
         try {
@@ -64,12 +78,17 @@ public class BasePage {
     }
 
     // Wait until an element is available
-    public void waitForElement(By locator) {
+    public void waitUntilVisible(By locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
     public WebElement waitForElementToBeClickable(By locator) {
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    public void scrollToElement(By locator) {
+        WebElement element = driver.findElement(locator);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
     // When a website contains iframes, Selenium cannot directly interact with elements inside the iframe unless you switch into it first.
@@ -82,5 +101,42 @@ public class BasePage {
     // Once authentication is done, Selenium must switch back to the main content.
     public void switchToDefaultContent() {
         driver.switchTo().defaultContent();
+    }
+
+    public void switchToNewWindow() {
+        originalWindow = driver.getWindowHandle(); // remember current window
+        wait.until(driver -> driver.getWindowHandles().size() > 1); // wait for the second window to be opened
+
+        for (String windowHandle : driver.getWindowHandles()) {
+            if (!windowHandle.equals(originalWindow)) {
+                driver.switchTo().window(windowHandle); // jump to the new window
+                break;
+            }
+        }
+    }
+
+    public void switchBackToOriginalWindow() {
+        if (originalWindow != null) {
+            driver.switchTo().window(originalWindow);
+        } else {
+            throw new IllegalStateException("originalWindow is not set.");
+        }
+    }
+
+    // CDP (Chrome DevTools Protocol) PDF Export
+    public void saveCurrentPageAsPDF(String filePath) {
+        if (!(driver instanceof ChromeDriver)) {
+            throw new UnsupportedOperationException("PDF export requires ChromeDriver.");
+        }
+
+        Map<String, Object> printOptions = new HashMap<>();
+        printOptions.put("path", filePath);
+        printOptions.put("printBackground", true);
+
+        ((ChromeDriver) driver).executeCdpCommand("Page.printToPDF", printOptions);
+    }
+
+    public void saveCookies() {
+
     }
 }
