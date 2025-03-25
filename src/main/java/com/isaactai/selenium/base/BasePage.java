@@ -40,6 +40,7 @@ public class BasePage {
         } catch (ElementClickInterceptedException e) {
             jsClick(element); // if intercepted, use JavaScript to click
         }
+        waitForSeconds(1);
         ScreenshotUtil.takeScreenshot(driver, "after_click" + sanitize(locator.toString()));
     }
 
@@ -51,6 +52,7 @@ public class BasePage {
         } catch (ElementClickInterceptedException e) {
             jsClick(element); // if intercepted, use JavaScript to click
         }
+        waitForSeconds(1);
         ScreenshotUtil.takeScreenshot(driver, "after_click" + sanitize(element.toString()));
     }
 
@@ -227,5 +229,14 @@ public class BasePage {
     public void switchToDefaultContent() {
         driver.switchTo().defaultContent();
         logger.debug("Switched back to default content");
+    }
+
+    protected void waitForSeconds(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Thread was interrupted during wait", e);
+        }
     }
 }

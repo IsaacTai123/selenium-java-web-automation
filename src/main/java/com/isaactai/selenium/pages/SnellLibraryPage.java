@@ -63,6 +63,7 @@ public class SnellLibraryPage extends BasePage {
             ScreenshotUtil.takeScreenshot(driver, "before_click_dynamicSlot_" + index);
             scrollToTime(time);
             scrollToBottomAndClick(targetSlot);
+            waitForSeconds(1);
             ScreenshotUtil.takeScreenshot(driver, "after_click_dynamicSlot_" + index);
         } else {
             throw new RuntimeException("Not enough available slots to click at index " + fromEndIndex);
