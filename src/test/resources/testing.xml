@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="All Tests Suite">
+    <test name="Run All Tests">
+        <classes>
+            <class name="com.isaactai.selenium.tests.TranscriptTest"/>
+            <class name="com.isaactai.selenium.tests.CanvasCalendarTest"/>
+            <class name="com.isaactai.selenium.tests.ReserveStudyRoomTest"/>
+            <class name="com.isaactai.selenium.tests.DatasetsTest"/>
+            <class name="com.isaactai.selenium.tests.AcademicCalendarTest"/>
+        </classes>
+    </test>
+</suite>

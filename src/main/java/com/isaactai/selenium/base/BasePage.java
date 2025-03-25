@@ -138,7 +138,6 @@ public class BasePage {
     }
 
     public void scrollToElement(By locator) {
-        waitUntilVisible(locator);
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }
@@ -209,5 +208,24 @@ public class BasePage {
 
     public void jsClick(WebElement element) {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+    }
+
+    public void switchToIframe(String idOrName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(idOrName));
+        logger.debug("Switched to iframe: " + idOrName);
+    }
+
+    // Switch to iframe using locator
+    public void switchToIframe(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(locator));
+        logger.debug("Switched to iframe using locator: " + locator);
+    }
+
+    // Switch to iframe using WebElement
+    public void switchToDefaultContent() {
+        driver.switchTo().defaultContent();
+        logger.debug("Switched back to default content");
     }
 }
