@@ -7,6 +7,7 @@ import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import com.isaactai.selenium.utils.ExcelUtil;
 
 /**
  * @author tisaac
@@ -14,11 +15,16 @@ import org.testng.annotations.Test;
 public class ReserveStudyRoomTest extends BaseTest {
 
     private SnellLibraryPage snellLibraryPage;
+    private String testName;
+    private String snellLibraryUrl;
+    private String neuUsername;
+    private String neuPassword;
 
     @BeforeMethod
     public void setup() {
         logger.debug("=== Set up Reserve Study Room Test triggered ===");
-        test = extent.createTest("Reserve Study Room Scenario");
+        loadReserveStudyRoomTestData();
+        test = extent.createTest(testName);
 
         // Set up the scenario name for screenshots and clear previous screenshots
         String scenarioName = this.getClass().getSimpleName();
@@ -27,7 +33,7 @@ public class ReserveStudyRoomTest extends BaseTest {
 
         // Initialize the WebDriver instance here: ChromeDriver
         snellLibraryPage = new SnellLibraryPage(driver);
-        driver.get("https://library.northeastern.edu/");
+        driver.get(snellLibraryUrl);
     }
 
     @Test
@@ -38,7 +44,7 @@ public class ReserveStudyRoomTest extends BaseTest {
             snellLibraryPage.bookStudyRoom();
 
             NeuLoginPage neuLoginPage = new NeuLoginPage(driver);
-            neuLoginPage.login("tai.hs", "fibtap-3xobho-zAxbyf$0");
+            neuLoginPage.login(neuUsername, neuPassword);
 
             snellLibraryPage.confirmBooking();
 
@@ -51,5 +57,16 @@ public class ReserveStudyRoomTest extends BaseTest {
             test.fail("failed to book a study room");
             Assert.fail("Booking confirmation page did not show up", e);
         }
+    }
+
+    public void loadReserveStudyRoomTestData() {
+        String excelSheetName = "ReserveStudyRoomTest";
+        testName = ExcelUtil.getCellValue(excelSheetName, "testName", "TestData");
+        snellLibraryUrl = ExcelUtil.getCellValue(excelSheetName, "snellLibraryUrl", "TestData");
+
+        String shareSheetName = "ShareData";
+        neuUsername = ExcelUtil.getCellValue(shareSheetName, "neuUsername", "TestData");
+        neuPassword = ExcelUtil.getCellValue(shareSheetName, "neuPassword", "TestData");
+
     }
 }

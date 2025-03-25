@@ -1,6 +1,7 @@
 package com.isaactai.selenium.pages;
 
 import com.isaactai.selenium.base.BasePage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -15,31 +16,36 @@ import java.util.NoSuchElementException;
  */
 public class SnellLibraryPage extends BasePage {
 
-    private final By reserveStudyRoomBtn = By.cssSelector("a[href='/library-locations/library-rooms-spaces/']");
-    private final By bostonLibrary = By.cssSelector("a.pt-cv-href-thumbnail[href=\"https://library.northeastern.edu/ideas/rooms-spaces/\"]");
-    private final By bookRoomBtn = By.cssSelector("a.simple-button[href=\"https://northeastern.libcal.com/reserve/spaces/studyspace\"]");
-    private final By seatStyleDropDown = By.id("gid"); // select "Individual Study"
-    private final By capacityDropDown = By.id("capacity"); // select " Space For 1-4 people "
-    private final By nextAvailableBtn = By.cssSelector("button[aria-label='Next Available']");
-    private final By availTime = By.cssSelector("a.s-lc-eq-avail");
-    private final By submitBtn = By.id("submit_times");
-    private final By confirmBtn = By.id("terms_accept");
-    private final By reservationTitleField = By.id("nick"); // input field
-    private final By bookingBtn = By.id("btn-form-submit");
-    private final By verify = By.cssSelector("h1.s-lc-eq-success-title");
+    private By reserveStudyRoomBtn = null;
+    private By bostonLibrary = null;
+    private By bookRoomBtn = null;
+    private By seatStyle = null; // select "Individual Study"
+    private By capacity = null; // select " Space For 1-4 people "
+    private By nextAvailableBtn = null;
+    private By availTime = null;
+    private By submitBtn = null;
+    private By confirmBtn = null;
+    private By reservationTitleField = null; // input field
+    private By bookingBtn = null;
+    private By verify = null;
+    private String seatStyleOption;
+    private String capacityOption;
+    private String time;
+    private String reservationTitleOption;
 
 
 
     public SnellLibraryPage(WebDriver driver) {
         super(driver);
+        loadLocator();
     }
 
     public void bookStudyRoom() {
         click(reserveStudyRoomBtn);
         click(bostonLibrary);
         click(bookRoomBtn);
-        selectFromDropdown(seatStyleDropDown, "Individual Study");
-        selectFromDropdown(capacityDropDown, "Space For 1-4 people");
+        selectFromDropdown(seatStyle, seatStyleOption);
+        selectFromDropdown(capacity, capacityOption);
         clickIfPresent(nextAvailableBtn);
         clickAvailableTimeSlot(10);
 
@@ -55,7 +61,7 @@ public class SnellLibraryPage extends BasePage {
             WebElement targetSlot = slots.get(index);
 
             ScreenshotUtil.takeScreenshot(driver, "before_click_dynamicSlot_" + index);
-            scrollToTime("8:00am");
+            scrollToTime(time);
             scrollToBottomAndClick(targetSlot);
             ScreenshotUtil.takeScreenshot(driver, "after_click_dynamicSlot_" + index);
         } else {
@@ -74,12 +80,34 @@ public class SnellLibraryPage extends BasePage {
 
     public void confirmBooking() {
         click(confirmBtn);
-        enterText(reservationTitleField, "Study Selenium Test");
+        enterText(reservationTitleField, reservationTitleOption);
         click(bookingBtn);
     }
 
     public boolean isBookingConfirmed() {
         WebElement h1 = driver.findElement(verify);
         return h1.getText().contains("Booking Confirmed");
+    }
+
+    public void loadLocator() {
+        // Load locators from Excel or any other source
+        // For example:
+        String excelSheetName = "ReserveStudyRoomTest";
+        reserveStudyRoomBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "reserveStudyRoomBtn", "LocatorValue"));
+        bostonLibrary = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "bostonLibrary", "LocatorValue"));
+        bookRoomBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "bookRoomBtn", "LocatorValue"));
+        seatStyle = By.id(ExcelUtil.getCellValue(excelSheetName, "seatStyle", "LocatorValue"));
+        capacity = By.id(ExcelUtil.getCellValue(excelSheetName, "capacity", "LocatorValue"));
+        nextAvailableBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "nextAvailableBtn", "LocatorValue"));
+        availTime = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "availTime", "LocatorValue"));
+        submitBtn = By.id(ExcelUtil.getCellValue(excelSheetName, "submitBtn", "LocatorValue"));
+        confirmBtn = By.id(ExcelUtil.getCellValue(excelSheetName, "confirmBtn", "LocatorValue"));
+        reservationTitleField = By.id(ExcelUtil.getCellValue(excelSheetName, "reservationTitleField", "LocatorValue"));
+        bookingBtn = By.id(ExcelUtil.getCellValue(excelSheetName, "bookingBtn", "LocatorValue"));
+        verify = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "verify", "LocatorValue"));
+        seatStyleOption = ExcelUtil.getCellValue(excelSheetName, "seatStyle", "TestData");
+        capacityOption = ExcelUtil.getCellValue(excelSheetName, "capacity", "TestData");
+        time = ExcelUtil.getCellValue(excelSheetName, "time", "TestData");
+        reservationTitleOption = ExcelUtil.getCellValue(excelSheetName, "reservationTitleField", "TestData");
     }
 }

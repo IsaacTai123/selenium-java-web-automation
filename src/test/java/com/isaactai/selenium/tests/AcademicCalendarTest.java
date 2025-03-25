@@ -5,6 +5,7 @@ import com.isaactai.selenium.pages.AcademicCalendarPage;
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
 import com.isaactai.selenium.pages.StudentHubPage;
 import com.isaactai.selenium.utils.AssertUtil;
+import com.isaactai.selenium.utils.ExcelUtil;
 import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.openqa.selenium.By;
 import org.testng.Assert;
@@ -16,13 +17,18 @@ import org.testng.annotations.Test;
  */
 public class AcademicCalendarTest extends BaseTest {
 
-    private final By hubLoginButton = By.cssSelector("#menu-item-menu-main-desktop-2483 a");
+    private String hubLoginLocator;
+    String microsoftUsername;
+    String microsoftPassword;
+    String studentHubUrl;
+    String testName;
 
     // Test method to verify the academic calendar
     @BeforeMethod
     public void setup() {
+        loadAcademicCalendarTestData();
         logger.debug("=== Set up Academic Calendar Test triggered ===");
-        test = extent.createTest("Academic Calendar Scenario");
+        test = extent.createTest(testName);
 
         // Set up the scenario name for screenshots and clear previous screenshots
         String scenarioName = this.getClass().getSimpleName();
@@ -30,9 +36,10 @@ public class AcademicCalendarTest extends BaseTest {
         ScreenshotUtil.clearScreenshotFolder("screenshots/" + scenarioName);
 
         MicrosoftLoginPage microsoftLoginPage = new MicrosoftLoginPage(driver);
-        driver.get("https://about.me.northeastern.edu/home/"); // Open the target URL
-        microsoftLoginPage.click(hubLoginButton);
-        microsoftLoginPage.login("tai.hs@northeastern.edu", "fibtap-3xobho-zAxbyf$0");
+        driver.get(studentHubUrl); // Open the target URL
+        By hubLoginBtn = By.cssSelector(hubLoginLocator);
+        microsoftLoginPage.click(hubLoginBtn);
+        microsoftLoginPage.login(microsoftUsername, microsoftPassword);
     }
 
     @Test
@@ -52,6 +59,20 @@ public class AcademicCalendarTest extends BaseTest {
                 "Add to My Calendar' button is visible",
                 "Add to My Calendar' button is not visible"
         );
+
+    }
+
+    public void loadAcademicCalendarTestData() {
+        // Load test data from Excel
+        String excelShareSheet = "ShareData";
+
+        microsoftUsername = ExcelUtil.getCellValue(excelShareSheet, "microsoftUsername", "TestData");
+        microsoftPassword = ExcelUtil.getCellValue(excelShareSheet, "microsoftPassword", "TestData");
+
+        String excelSheetName = "AcademicCalendarTest";
+        studentHubUrl = ExcelUtil.getCellValue(excelSheetName, "studentHubUrl", "TestData");
+        hubLoginLocator = ExcelUtil.getCellValue(excelSheetName, "hubLoginButton", "LocatorValue");
+        testName = ExcelUtil.getCellValue(excelSheetName, "testName", "TestData");
 
     }
 

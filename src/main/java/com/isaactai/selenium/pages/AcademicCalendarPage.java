@@ -1,6 +1,7 @@
 package com.isaactai.selenium.pages;
 
 import com.isaactai.selenium.base.BasePage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -11,14 +12,15 @@ import org.openqa.selenium.WebElement;
  */
 public class AcademicCalendarPage extends BasePage {
 
-    private final By academicCalBtn = By.cssSelector("a[href=\"https://registrar.northeastern.edu/article/academic-calendar/\"]");
-    private final By iframe = By.id("trumba.spud.7.iframe");
-    private final By underGradCheck = By.id("mixItem0");
-    private final By iframe2 = By.id("trumba.spud.2.iframe");
-    private final By calendarBtn = By.id("ctl04_ctl103_ctl00_buttonAtmc");
+    private By academicCalBtn = null;
+    private By iframe = null;
+    private By underGradCheck = null;
+    private By iframe2 = null;
+    private By calendarBtn = null;
 
     public AcademicCalendarPage(WebDriver driver) {
         super(driver);
+        loadLocator();
     }
 
     public void openAcademicCalendar() {
@@ -47,5 +49,15 @@ public class AcademicCalendarPage extends BasePage {
         } catch (TimeoutException e) {
             return false;
         }
+    }
+
+    public void loadLocator() {
+        // Load locators from the Excel file
+        String excelShareSheet = "AcademicCalendarTest";
+        academicCalBtn = By.cssSelector(ExcelUtil.getCellValue(excelShareSheet, "academicCalBtn", "LocatorValue"));
+        iframe = By.id(ExcelUtil.getCellValue(excelShareSheet, "iframe", "LocatorValue"));
+        underGradCheck = By.id(ExcelUtil.getCellValue(excelShareSheet, "underGradCheck", "LocatorValue"));
+        iframe2 = By.id(ExcelUtil.getCellValue(excelShareSheet, "iframe2", "LocatorValue"));
+        calendarBtn = By.id(ExcelUtil.getCellValue(excelShareSheet, "calendarBtn", "LocatorValue"));
     }
 }

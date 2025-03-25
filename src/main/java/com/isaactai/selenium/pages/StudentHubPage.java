@@ -1,6 +1,7 @@
 package com.isaactai.selenium.pages;
 
 import com.isaactai.selenium.base.BasePage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -9,13 +10,14 @@ import org.openqa.selenium.WebDriver;
  */
 public class StudentHubPage extends BasePage {
 
-    private final By resourcesTab = By.cssSelector("[data-testid='link-resources']");
-    private final By academicClassRegistration = By.id("resource-tab-Academics,_Classes_&_Registration");
-    private final By myTranscriptBtn = By.cssSelector("a[data-gtm-resources-link=\"My Transcript\"]");
-    private final By AcademicCalendar = By.cssSelector("a[data-gtm-resources-link=\"Academic Calendar\"]");
+    private By resourcesTab = null;
+    private By academicClassRegistration = null;
+    private By myTranscriptBtn = null;
+    private By AcademicCalendar = null;
 
     public StudentHubPage(WebDriver driver) {
         super(driver);
+        loadLocator();
     }
 
     public void openMyTranscript() {
@@ -32,5 +34,19 @@ public class StudentHubPage extends BasePage {
         scrollToElement(AcademicCalendar);
         click(AcademicCalendar);
         switchToNewWindow();
+    }
+
+    public void loadLocator() {
+        // Load locators from the Excel file
+        String excelShareSheet = "ShareData";
+        resourcesTab = By.cssSelector(ExcelUtil.getCellValue(excelShareSheet, "resourcesTab", "LocatorValue"));
+        academicClassRegistration = By.id(ExcelUtil.getCellValue(excelShareSheet, "academicClassRegistration", "LocatorValue"));
+
+        String transcriptSheet = "TranscriptTest";
+        myTranscriptBtn = By.cssSelector(ExcelUtil.getCellValue(transcriptSheet, "myTranscriptBtn", "LocatorValue"));
+
+        String AcademicCalendarSheet = "AcademicCalendarTest";
+        AcademicCalendar = By.cssSelector(ExcelUtil.getCellValue(AcademicCalendarSheet, "AcademicCalendar", "LocatorValue"));
+
     }
 }

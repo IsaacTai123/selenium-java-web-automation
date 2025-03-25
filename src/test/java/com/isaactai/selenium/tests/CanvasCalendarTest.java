@@ -3,11 +3,14 @@ package com.isaactai.selenium.tests;
 import com.isaactai.selenium.base.BaseTest;
 import com.isaactai.selenium.pages.CanvasPage;
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.openqa.selenium.By;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 /**
  * @author tisaac
@@ -15,12 +18,20 @@ import org.testng.annotations.Test;
 public class CanvasCalendarTest extends BaseTest {
 
     private CanvasPage canvasPage;
-    private final By canvasLogin = By.cssSelector("#menu-item-menu-main-desktop-4343 a");
+    private By canvasLogin = null;
+    private String testName;
+    private String microsoftUsername;
+    private String microsoftPassword;
+    private String canvasUrl;
+    private Map<String, String> testData;
+    private Map<String, String> testData2;
+
 
     @BeforeMethod
     public void setup() {
         logger.debug("=== Set up Canvas Calendar Test triggered ===");
-        test = extent.createTest("Canvas Calendar Scenario");
+        loadCanvasTestData();
+        test = extent.createTest(testName);
 
         // Set up the scenario name for screenshots and clear previous screenshots
         String scenarioName = this.getClass().getSimpleName();
@@ -29,9 +40,9 @@ public class CanvasCalendarTest extends BaseTest {
 
 
         MicrosoftLoginPage microsoftLoginPage = new MicrosoftLoginPage(driver);
-        driver.get("https://canvas.northeastern.edu");
+        driver.get(canvasUrl);
         microsoftLoginPage.click(canvasLogin);
-        microsoftLoginPage.login("tai.hs@northeastern.edu", "fibtap-3xobho-zAxbyf$0");
+        microsoftLoginPage.login(microsoftUsername, microsoftPassword);
 
         canvasPage = new CanvasPage(driver);
     }
@@ -42,9 +53,17 @@ public class CanvasCalendarTest extends BaseTest {
         logger.debug("=== Test Canvas Calendar triggered ===");
 
         String[][] events = {
-            {"Test Event", "Wed, Mar 26, 2025", "10:00 AM", "11:30 AM", "Does not repeat", "Northeastern Curry Student Center"},
-            {"Test Event 2", "Fri, Apr 4, 2025", "1:30 PM", "4:30 PM", "Does not repeat", "Egan Engineering and Science Center"}
+            {testData.get("Title"), testData.get("Date"), testData.get("StartTime"), testData.get("EndTime"), testData.get("Frequency"), testData.get("Location")},
+            {testData2.get("Title"), testData2.get("Date"), testData2.get("StartTime"), testData2.get("EndTime"), testData2.get("Frequency"), testData2.get("Location")}
         };
+
+        // debuging
+        for (String[] event : events) {
+            logger.debug("=== Event ===");
+            for (String field : event) {
+                logger.debug(field);
+            }
+        }
 
         for (String[] event : events) {
             String title = event[0];
@@ -73,5 +92,22 @@ public class CanvasCalendarTest extends BaseTest {
                 Assert.fail("Test failed for event \"" + event[0] + "\": " + e.getMessage());
             }
         }
+    }
+
+    public void loadCanvasTestData() {
+        // Load test data from Excel or any other source
+        // For example:
+        String excelSheetName = "CanvasCalendarTest";
+        canvasLogin = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "canvasLogin", "LocatorValue"));
+        testName = ExcelUtil.getCellValue(excelSheetName, "testName", "TestData");
+        canvasUrl = ExcelUtil.getCellValue(excelSheetName, "canvasUrl", "TestData");
+
+        String shareSheetName = "ShareData";
+        microsoftUsername = ExcelUtil.getCellValue(shareSheetName, "microsoftUsername", "TestData");
+        microsoftPassword = ExcelUtil.getCellValue(shareSheetName, "microsoftPassword", "TestData");
+
+        String eventSheet = "CanvasEvents";
+        testData = ExcelUtil.getRowData(eventSheet, "Test Event 1");
+        testData2 = ExcelUtil.getRowData(eventSheet, "Test Event 2");
     }
 }

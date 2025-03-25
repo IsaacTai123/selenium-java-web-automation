@@ -1,6 +1,7 @@
 package com.isaactai.selenium.pages;
 
 import com.isaactai.selenium.base.BasePage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -16,20 +17,21 @@ import java.util.Map;
  */
 public class TranscriptPage extends BasePage {
 
-    private final By transcriptLevelDropdown = By.id("levl_id");
-    private final By transcriptTypeDropdown = By.id("type_id");
-    private final By submitBtn = By.cssSelector("input[type='submit'][value='Submit']");
-    private final By transcriptContainer = By.cssSelector("table.datadisplaytable");
+    private By transcriptLevel = null;
+    private By transcriptType = null;
+    private By submitBtn = null;
+    private By transcriptContainer = null;
 
     public TranscriptPage(WebDriver driver) {
         super(driver);
+        loadLocator();
         logger.debug("transcript page initialized");
     }
 
     // Select Transcript Level as “Graduate” and Transcript Type as “Audit Transcript”.
     public void selectTranscriptOptions(String level, String type) {
-        selectFromDropdown(transcriptLevelDropdown, level);
-        selectFromDropdown(transcriptTypeDropdown, type);
+        selectFromDropdown(transcriptLevel, level);
+        selectFromDropdown(transcriptType, type);
         click(submitBtn);
     }
 
@@ -56,5 +58,13 @@ public class TranscriptPage extends BasePage {
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             fos.write(pdfBytes);
         }
+    }
+
+    public void loadLocator() {
+        String excelSheetName = "TranscriptTest";
+        transcriptLevel = By.id(ExcelUtil.getCellValue(excelSheetName, "transcriptLevel", "LocatorValue"));
+        transcriptType = By.id(ExcelUtil.getCellValue(excelSheetName, "transcriptType", "LocatorValue"));
+        submitBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "submitBtn", "LocatorValue"));
+        transcriptContainer = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "transcriptContainer", "LocatorValue"));
     }
 }

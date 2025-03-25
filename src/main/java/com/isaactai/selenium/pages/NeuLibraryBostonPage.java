@@ -1,6 +1,7 @@
 package com.isaactai.selenium.pages;
 
 import com.isaactai.selenium.base.BasePage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,12 +11,13 @@ import org.openqa.selenium.WebElement;
  */
 public class NeuLibraryBostonPage extends BasePage {
 
-    private final By digitalRepoServiceBtn = By.cssSelector("a[aria-label^='digital repository service']");
-    private final By datasetsBtn = By.cssSelector("a[href='/datasets']");
-    private final By zipDownloadBtn = By.cssSelector("a[href=\"/downloads/neu:4f24kd24s?datastream_id=content\"]");
+    private By digitalRepoServiceBtn = null;
+    private By datasetsBtn = null;
+    private By zipDownloadBtn = null;
 
     public NeuLibraryBostonPage(WebDriver driver) {
         super(driver);
+        loadLocator();
     }
 
     public void navigateToDigitalRepositoryService() {
@@ -37,5 +39,13 @@ public class NeuLibraryBostonPage extends BasePage {
         if (!fileName.endsWith(".zip")) fileName += ".zip";
 
         return fileName;
+    }
+
+    public void loadLocator() {
+        // Load locators from the Excel file
+        String excelSheetName = "DatasetsTest";
+        digitalRepoServiceBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "digitalRepoServiceBtn", "LocatorValue"));
+        datasetsBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "datasetsBtn", "LocatorValue"));
+        zipDownloadBtn = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "zipDownloadBtn", "LocatorValue"));
     }
 }

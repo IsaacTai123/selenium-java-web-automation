@@ -1,6 +1,7 @@
 package com.isaactai.selenium.pages;
 
 import com.isaactai.selenium.base.BasePage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,18 +12,20 @@ import java.util.List;
  */
 public class CanvasPage extends BasePage {
 
-    private final By calendarBtn = By.id("global_nav_calendar_link");
-    private final By createNewEventBtn = By.id("create_new_event_link");
-    private final By titleField = By.cssSelector("input[data-testid=\"edit-calendar-event-form-title\"]");
-    private final By dateField = By.cssSelector("input[data-testid=\"edit-calendar-event-form-date\"]");
-    private final By startTimeField = By.cssSelector("input[data-testid=\"event-form-start-time\"]");
-    private final By endTimeField = By.cssSelector("input[data-testid=\"event-form-end-time\"]");
-    private final By frequencyField = By.cssSelector("input[data-testid=\"frequency-picker\"]");
-    private final By locationField = By.cssSelector("input[data-testid=\"edit-calendar-event-form-location\"]");
-    private final By submiteBtn = By.id("edit-calendar-event-submit-button");
+    private By calendarBtn = null;
+    private By createNewEventBtn = null;
+    private By titleField = null;
+    private By dateField = null;
+    private By startTimeField = null;
+    private By endTimeField = null;
+    private By frequencyField = null;
+    private By locationField = null;
+    private By submitBtn = null;
+    private By event = null;
 
     public CanvasPage(WebDriver driver) {
         super(driver);
+        loadLocator();
     }
 
     public void clickCalendarBtn() {
@@ -40,7 +43,7 @@ public class CanvasPage extends BasePage {
         enterText(endTimeField, endTime);
         selectFromCustomDropdown(frequencyField, frequency);
         enterText(locationField, location);
-        click(submiteBtn);
+        click(submitBtn);
     }
 
     /**
@@ -50,7 +53,7 @@ public class CanvasPage extends BasePage {
      * @return true if event is found, false otherwise
      */
     public boolean isEventDisplayed(String eventTitle) {
-        List<WebElement> events = driver.findElements(By.cssSelector(".fc-title"));
+        List<WebElement> events = driver.findElements(event);
         for (WebElement e : events) {
             if (e.getText().contains(eventTitle)) {
                 logger.debug("Found event: {}", eventTitle);
@@ -59,5 +62,20 @@ public class CanvasPage extends BasePage {
         }
         logger.warn("Event not found: {}", eventTitle);
         return false;
+    }
+
+    public void loadLocator() {
+        String excelSheetName = "CanvasCalendarTest";
+        calendarBtn = By.id(ExcelUtil.getCellValue(excelSheetName, "calendarBtn", "LocatorValue"));
+        createNewEventBtn = By.id(ExcelUtil.getCellValue(excelSheetName, "createNewEventBtn", "LocatorValue"));
+        titleField = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "titleField", "LocatorValue"));
+//        titleField = By.cssSelector("input[data-testid=\"edit-calendar-event-form-title\"]");
+        dateField = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "dateField", "LocatorValue"));
+        startTimeField = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "startTimeField", "LocatorValue"));
+        endTimeField = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "endTimeField", "LocatorValue"));
+        frequencyField = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "frequencyField", "LocatorValue"));
+        locationField = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "locationField", "LocatorValue"));
+        submitBtn = By.id(ExcelUtil.getCellValue(excelSheetName, "submitBtn", "LocatorValue"));
+        event = By.cssSelector(ExcelUtil.getCellValue(excelSheetName, "event", "LocatorValue"));
     }
 }

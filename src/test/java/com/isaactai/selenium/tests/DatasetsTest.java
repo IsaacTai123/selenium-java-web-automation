@@ -2,6 +2,7 @@ package com.isaactai.selenium.tests;
 
 import com.isaactai.selenium.base.BaseTest;
 import com.isaactai.selenium.pages.NeuLibraryBostonPage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import com.isaactai.selenium.utils.FileUtil;
 import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -18,7 +19,11 @@ import java.util.Map;
  */
 public class DatasetsTest extends BaseTest {
 
-    private final String downloadDir = System.getProperty("user.dir") + "/downloads";
+    private String downloadDir;
+    private String testName;
+    private String libraryUrl;
+    private String waitForDownloadSec;
+
 
     @Override
     public ChromeOptions getChromeOptions() {
@@ -36,10 +41,15 @@ public class DatasetsTest extends BaseTest {
         return options;
     }
 
+    @Override
     @BeforeMethod
-    public void setup() {
+    public void setUp() {
+        loadDatasetsTestData();
+
+        driver = createDriver(getChromeOptions());
+
         logger.debug("=== Set up Datasets Test triggered ===");
-        test = extent.createTest("Datasets Scenario");
+        test = extent.createTest(testName);
 
         // Set up the scenario name for screenshots and clear previous screenshots
         String scenarioName = this.getClass().getSimpleName();
@@ -50,9 +60,7 @@ public class DatasetsTest extends BaseTest {
         FileUtil.ensureParentDirExists(dir);
 
         // Initialize the WebDriver instance here: ChromeDriver
-        driver.get("https://onesearch.library.northeastern.edu/discovery/search?vid=01NEU_INST:NU&lang=en");
-
-
+        driver.get(libraryUrl);
     }
 
     // Example test method
@@ -64,7 +72,8 @@ public class DatasetsTest extends BaseTest {
         neuLibraryBostonPage.navigateToDigitalRepositoryService();
         neuLibraryBostonPage.downloadZipFile();
 
-        File downloadedFile = waitForFileDownloaded(neuLibraryBostonPage.getFileName(), 40);
+        int timeoutSec = Integer.parseInt(waitForDownloadSec);
+        File downloadedFile = waitForFileDownloaded(neuLibraryBostonPage.getFileName(), timeoutSec);
 
         test.info("Expected: File downloaded to " + downloadDir);
         test.info("Actual: " + (downloadedFile != null ? downloadedFile.getAbsolutePath() : "none"));
@@ -94,5 +103,14 @@ public class DatasetsTest extends BaseTest {
             }
         }
         return null;
+    }
+
+    public void loadDatasetsTestData() {
+        // Load test data from Excel or any other source
+        String excelSheetName = "DatasetsTest";
+        testName = ExcelUtil.getCellValue(excelSheetName, "testName", "TestData");
+        downloadDir = System.getProperty("user.dir") + ExcelUtil.getCellValue(excelSheetName, "downloadPath", "TestData");
+        libraryUrl = ExcelUtil.getCellValue(excelSheetName, "libraryUrl", "TestData");
+        waitForDownloadSec = ExcelUtil.getCellValue(excelSheetName, "waitForDownloadSec", "TestData");
     }
 }
