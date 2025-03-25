@@ -50,7 +50,7 @@ public class ScreenshotUtil {
 
             File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
             File dest = new File(fileName);
-            dest.getParentFile().mkdirs();
+            FileUtil.ensureParentDirExists(dest); // Ensure the parent directory exists
             Files.copy(src.toPath(), dest.toPath());
 
             logger.info("Screenshot saved: " + fileName);
