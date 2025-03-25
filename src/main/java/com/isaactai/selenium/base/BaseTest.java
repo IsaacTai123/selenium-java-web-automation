@@ -23,7 +23,6 @@ import java.util.Set;
 public class BaseTest {
     protected static final Logger logger = LoggerFactory.getLogger(MicrosoftLoginPage.class);
     protected WebDriver driver; // WebDriver instance used for all tests
-    protected Set<Cookie> savedCookies; // Cookies to be saved for later use
 
     protected static ExtentReports extent; // ExtentReports instance for reporting
     protected static ExtentTest test;

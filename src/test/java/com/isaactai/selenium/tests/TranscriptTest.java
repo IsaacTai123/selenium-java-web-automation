@@ -42,7 +42,7 @@ public class TranscriptTest extends BaseTest {
     }
 
     @Test
-    public void testTranscript() throws Exception {
+    public void testTranscript() {
         try {
             transcriptPage.selectTranscriptOptions("Graduate", "Audit Transcript");
             transcriptPage.waitForTranscriptShow();

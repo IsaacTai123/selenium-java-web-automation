@@ -2,10 +2,7 @@ package com.isaactai.selenium.base;
 
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
 import com.isaactai.selenium.utils.ScreenshotUtil;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -16,7 +13,8 @@ import java.time.Duration;
 
 /**
  * BasePage class provides common methods for interacting with web elements.
- * Check more details at <a href="https://www.javadoc.io/doc/org.seleniumhq.selenium/selenium-support/latest/org/openqa/selenium/support/ui/ExpectedConditions.html">...</a>
+ * Check more details at <a href="https://www.javadoc.io/doc/org.seleniumhq.selenium/selenium-support/latest/org/openqa/selenium/support/ui/ExpectedConditions.html">seleniumhq docs</a>
+ *
  * @author tisaac
  */
 public class BasePage {
@@ -40,8 +38,14 @@ public class BasePage {
         ScreenshotUtil.takeScreenshot(driver, "after_click" + sanitize(locator.toString()));
     }
 
-    // Enter text
-    public void enterText(By locator, String txt) {
+    /**
+     * Enters text into an input field after clearing it properly.
+     * Handles both macOS and Windows control keys (COMMAND vs CONTROL).
+     *
+     * @param locator The locator of the input field.
+     * @param text    The text to be entered.
+     */
+    public void enterText(By locator, String text) {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         // Check if element is editable
         try {
@@ -49,8 +53,20 @@ public class BasePage {
                 throw new IllegalStateException("Element is not enabled for input");
             }
 
+            // Check if field is readonly
+            String readonly = element.getAttribute("readonly");
+            if (readonly != null && readonly.equalsIgnoreCase("true")) {
+                logger.warn("Input field is readonly and cannot be typed into: {}", locator);
+                return;
+            }
+
+            // Clear field using platform-appropriate shortcut
+            clearInputCrossPlatform(element);
+
             element.clear(); // Clear the text field before entering text
-            element.sendKeys(txt); // Enter the text
+            element.sendKeys(text); // Enter the text
+            logger.debug("Input entered: [{}] -> {}", locator, text);
+
         } catch (IllegalStateException e) {
             System.out.println("Element is not enabled for input: " + e.getMessage());
         } catch (Exception e) {
@@ -116,5 +132,40 @@ public class BasePage {
 
     public String sanitize(String input) {
         return input.replaceAll("[^a-zA-Z0-9]", "_");
+    }
+
+    /**
+     * Selects an item from a custom (non-&lt;select&gt;) dropdown.
+     * This method works for dropdowns built with an &lt;input&gt; element and a list of options (e.g., Canvas Frequency).
+     *
+     * @param dropdownInput the input element that opens the dropdown (usually an &lt;input&gt; or &lt;div&gt;)
+     * @param optionText    the visible text of the option to be selected (e.g., "Daily")
+     */
+    public void selectFromCustomDropdown(By dropdownInput, String optionText) {
+        // 1. Click the input to open the dropdown
+        click(dropdownInput);
+        logger.debug("Opened dropdown for: {}", dropdownInput);
+
+        // 2. Build locator for the visible option
+        By optionLocator = By.xpath("//span[@role='option' and normalize-space()='" + optionText + "']");
+
+        // 3. Wait for and click the desired option
+        click(optionLocator);
+        logger.debug("Selected option: {}", optionText);
+    }
+
+    /**
+     * Clears the content of an input field using platform-specific key commands.
+     *
+     * @param element The input WebElement to be cleared.
+     */
+    public void clearInputCrossPlatform(WebElement element) {
+        Keys commandKey = System.getProperty("os.name").toLowerCase().contains("mac")
+                ? Keys.COMMAND
+                : Keys.CONTROL;
+
+        // Select all and delete to clear the input field
+        element.sendKeys(Keys.chord(commandKey, "a"));
+        element.sendKeys(Keys.DELETE);
     }
 }
