@@ -138,6 +138,7 @@ public class BasePage {
     }
 
     public void scrollToElement(By locator) {
+        waitUntilVisible(locator);
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }

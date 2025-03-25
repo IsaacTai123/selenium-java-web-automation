@@ -40,16 +40,7 @@ public class BaseTest {
     @BeforeMethod
     public void setUp() {
         logger.debug("=== Initialize Web Driver ===");
-        // Initialize the WebDriver instance here: ChromeDriver
-        System.setProperty("webdriver.chrome.driver", "/Users/tisaac/chromedriver/mac_arm-122.0.6261.128/chromedriver-mac-arm64/chromedriver");
-
-        // Configure Chrome Driver options
-        ChromeOptions options = new ChromeOptions();
-        options.setBinary("/Users/tisaac/chrome/mac_arm-122.0.6261.128/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
-        options.addArguments("--start-maximized"); // Maximize browser window
-        options.addArguments("--disable-notifications"); // Disable pop-up notifications
-
-        driver = new ChromeDriver(options);
+        driver = createDriver(getChromeOptions());
     }
 
     @AfterMethod
@@ -59,5 +50,23 @@ public class BaseTest {
         if (driver != null) {
             driver.quit();
         }
+    }
+
+    protected WebDriver createDriver(ChromeOptions options) {
+        System.setProperty("webdriver.chrome.driver", "/Users/tisaac/chromedriver/mac_arm-122.0.6261.128/chromedriver-mac-arm64/chromedriver");
+        return new ChromeDriver(options);
+    }
+
+    protected ChromeOptions getDefaultOptions() {
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary("/Users/tisaac/chrome/mac_arm-122.0.6261.128/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
+        options.addArguments("--start-maximized");
+        options.addArguments("--disable-notifications");
+        return options;
+    }
+
+    // Hook method — to be overridden in subclasses if needed
+    protected ChromeOptions getChromeOptions() {
+        return getDefaultOptions();
     }
 }
