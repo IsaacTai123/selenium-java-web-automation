@@ -3,6 +3,7 @@ package com.isaactai.selenium.tests;
 import com.isaactai.selenium.base.BaseTest;
 import com.isaactai.selenium.pages.CanvasPage;
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.openqa.selenium.By;
@@ -20,6 +21,11 @@ public class CanvasCalendarTest extends BaseTest {
     public void setup() {
         logger.debug("=== Set up Canvas Calendar Test triggered ===");
         test = extent.createTest("Canvas Calendar Scenario");
+
+        // Set up the scenario name for screenshots and clear previous screenshots
+        String scenarioName = this.getClass().getSimpleName();
+        ScreenshotUtil.setScenarioName(scenarioName);
+        ScreenshotUtil.clearScreenshotFolder("screenshots/" + scenarioName);
 
 
         MicrosoftLoginPage microsoftLoginPage = new MicrosoftLoginPage(driver);

@@ -5,6 +5,7 @@ import com.isaactai.selenium.pages.MicrosoftLoginPage;
 import com.isaactai.selenium.pages.NeuLoginPage;
 import com.isaactai.selenium.pages.StudentHubPage;
 import com.isaactai.selenium.pages.TranscriptPage;
+import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.openqa.selenium.By;
@@ -26,6 +27,11 @@ public class TranscriptTest extends BaseTest {
     public void setUpPage() {
         logger.debug("=== Set up Transcript Test triggered ===");
         test = extent.createTest("Transcript Scenario");
+
+        // Set up the scenario name for screenshots and clear previous screenshots
+        String scenarioName = this.getClass().getSimpleName();
+        ScreenshotUtil.setScenarioName(scenarioName);
+        ScreenshotUtil.clearScreenshotFolder("screenshots/" + scenarioName);
 
         MicrosoftLoginPage microsoftLoginPage = new MicrosoftLoginPage(driver);
         driver.get("https://about.me.northeastern.edu/home/"); // Open the target URL

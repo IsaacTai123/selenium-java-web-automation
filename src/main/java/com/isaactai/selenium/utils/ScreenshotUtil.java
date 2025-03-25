@@ -1,6 +1,7 @@
 package com.isaactai.selenium.utils;
 
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import lombok.Setter;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * @author tisaac
@@ -22,6 +24,14 @@ import java.time.format.DateTimeFormatter;
 public class ScreenshotUtil {
 
     protected static final Logger logger = LoggerFactory.getLogger(MicrosoftLoginPage.class);
+
+    /**
+     * -- SETTER --
+     *  Set scenario name once per test (called from BaseTest or test class)
+     */
+    @Setter
+    private static String scenarioName;
+
     /**
      * Takes a screenshot and saves it to the appropriate scenario folder.
      *
@@ -30,20 +40,22 @@ public class ScreenshotUtil {
      */
     public static void takeScreenshot(WebDriver driver, String label) {
         try {
-            // Use the calling test class name as the scenario folder
-            String scenario = getScenarioName();
+            if (scenarioName == null) {
+                scenarioName = "UnknownScenario";
+            }
+
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            String folderPath = "screenshots/" + scenario;
+            String folderPath = "screenshots/" + scenarioName;
             String fileName = folderPath + "/" + label + "_" + timestamp + ".png";
 
             File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
             File dest = new File(fileName);
-            dest.getParentFile().mkdirs(); // Create folder if it doesn't exist
+            dest.getParentFile().mkdirs();
             Files.copy(src.toPath(), dest.toPath());
 
-            logger.info("📸 Screenshot saved: " + fileName);
+            logger.info("Screenshot saved: " + fileName);
         } catch (IOException e) {
-            logger.error("❌ Screenshot failed: " + e.getMessage());
+            logger.error("Screenshot failed: " + e.getMessage());
         }
     }
 
@@ -59,5 +71,19 @@ public class ScreenshotUtil {
             }
         }
         return "UnknownScenario";
+    }
+
+    public static void clearScreenshotFolder(String folderPath) {
+        File folder = new File(folderPath);
+        if (folder.exists() && folder.isDirectory()) {
+            for (File file : Objects.requireNonNull(folder.listFiles())) {
+                if (file.isFile()) {
+                    boolean deleted = file.delete();
+                    if (!deleted) {
+                        logger.error("Failed to delete screenshot: " + file.getName());
+                    }
+                }
+            }
+        }
     }
 }
