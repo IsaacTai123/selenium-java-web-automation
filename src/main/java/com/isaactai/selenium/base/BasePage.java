@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 
 /**
  * BasePage class provides common methods for interacting with web elements.
@@ -34,8 +35,39 @@ public class BasePage {
         // By is a locator strategy used in Selenium to find elements on a webpage.
         WebElement element = waitForElementToBeClickable(locator);
         ScreenshotUtil.takeScreenshot(driver, "before_click" + sanitize(locator.toString()));
-        element.click();
+        try {
+            element.click(); // try to click the element
+        } catch (ElementClickInterceptedException e) {
+            jsClick(element); // if intercepted, use JavaScript to click
+        }
         ScreenshotUtil.takeScreenshot(driver, "after_click" + sanitize(locator.toString()));
+    }
+
+    public void clickByElement(WebElement element) {
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        ScreenshotUtil.takeScreenshot(driver, "before_click" + sanitize(element.toString()));
+        try {
+            element.click(); // try to click the element
+        } catch (ElementClickInterceptedException e) {
+            jsClick(element); // if intercepted, use JavaScript to click
+        }
+        ScreenshotUtil.takeScreenshot(driver, "after_click" + sanitize(element.toString()));
+    }
+
+    public void clickIfPresent(By locator) {
+        List<WebElement> elements = driver.findElements(locator);
+        if (!elements.isEmpty()) {
+            WebElement element = elements.get(0);
+
+            if (element.isDisplayed()) {
+                logger.info("Element is visible: {}", locator);
+                click(locator);
+            } else {
+                logger.info("Element found but not visible: skipping click for " + locator);
+            }
+        } else {
+            logger.info("Element not found: skipping click for " + locator);
+        }
     }
 
     /**
@@ -167,5 +199,14 @@ public class BasePage {
         // Select all and delete to clear the input field
         element.sendKeys(Keys.chord(commandKey, "a"));
         element.sendKeys(Keys.DELETE);
+    }
+
+    public void scrollToBottomAndClick(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        clickByElement(element);
+    }
+
+    public void jsClick(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
     }
 }
