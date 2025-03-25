@@ -5,6 +5,7 @@ import com.isaactai.selenium.pages.MicrosoftLoginPage;
 import com.isaactai.selenium.pages.NeuLoginPage;
 import com.isaactai.selenium.pages.StudentHubPage;
 import com.isaactai.selenium.pages.TranscriptPage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import com.isaactai.selenium.utils.ScreenshotUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -21,12 +22,24 @@ import java.io.File;
 public class TranscriptTest extends BaseTest {
 
     private TranscriptPage transcriptPage;
-    private final By hubLoginButton = By.cssSelector("#menu-item-menu-main-desktop-2483 a");
+    String hubLoginLocator;
+    String microsoftUsername;
+    String microsoftPassword;
+    String studentHubUrl;
+    String neuUsername;
+    String neuPassword;
+    String transcriptLevel;
+    String transcriptType;
+    String downloadPath;
+    String testName;
+
+
 
     @BeforeMethod
     public void setUpPage() {
         logger.debug("=== Set up Transcript Test triggered ===");
-        test = extent.createTest("Transcript Scenario");
+        loadTranscriptTestData(); // Load test data from Excel
+        test = extent.createTest(testName);
 
         // Set up the scenario name for screenshots and clear previous screenshots
         String scenarioName = this.getClass().getSimpleName();
@@ -34,15 +47,17 @@ public class TranscriptTest extends BaseTest {
         ScreenshotUtil.clearScreenshotFolder("screenshots/" + scenarioName);
 
         MicrosoftLoginPage microsoftLoginPage = new MicrosoftLoginPage(driver);
-        driver.get("https://about.me.northeastern.edu/home/"); // Open the target URL
+        driver.get(studentHubUrl); // Open the target URL
+
+        By hubLoginButton =  By.cssSelector(hubLoginLocator);
         microsoftLoginPage.click(hubLoginButton);
-        microsoftLoginPage.login("tai.hs@northeastern.edu", "fibtap-3xobho-zAxbyf$0");
+        microsoftLoginPage.login(microsoftUsername, microsoftPassword);
 
         StudentHubPage studentHubPage = new StudentHubPage(driver);
         studentHubPage.openMyTranscript();
 
         NeuLoginPage neuLoginPage = new NeuLoginPage(driver);
-        neuLoginPage.login("tai.hs", "fibtap-3xobho-zAxbyf$0");
+        neuLoginPage.login(neuUsername, neuPassword);
 
         transcriptPage = new TranscriptPage(driver);
     }
@@ -50,10 +65,10 @@ public class TranscriptTest extends BaseTest {
     @Test
     public void testTranscript() {
         try {
-            transcriptPage.selectTranscriptOptions("Graduate", "Audit Transcript");
+            transcriptPage.selectTranscriptOptions(transcriptLevel, transcriptType);
             transcriptPage.waitForTranscriptShow();
 
-            String pdfPath = System.getProperty("user.dir") + "/downloads/academic transcript.pdf";
+            String pdfPath = System.getProperty("user.dir") + downloadPath;
             transcriptPage.saveCurrentPageAsPDF(pdfPath);
 
             File file = new File(pdfPath);
@@ -77,5 +92,18 @@ public class TranscriptTest extends BaseTest {
             test.fail("Test failed due to exception: " + e.getMessage());
             Assert.fail(e.getMessage());
         }
+    }
+
+    public void loadTranscriptTestData() {
+        hubLoginLocator = ExcelUtil.getCellValue("TranscriptTest", "hubLoginButton", "LocatorValue");
+        microsoftUsername = ExcelUtil.getCellValue("TranscriptTest", "microsoftUsername", "TestData");
+        microsoftPassword = ExcelUtil.getCellValue("TranscriptTest", "microsoftPassword", "TestData");
+        studentHubUrl = ExcelUtil.getCellValue("TranscriptTest", "studentHubUrl", "TestData");
+        neuUsername = ExcelUtil.getCellValue("TranscriptTest", "neuUsername", "TestData");
+        neuPassword = ExcelUtil.getCellValue("TranscriptTest", "neuPassword", "TestData");
+        transcriptLevel = ExcelUtil.getCellValue("TranscriptTest", "transcriptLevel", "TestData");
+        transcriptType = ExcelUtil.getCellValue("TranscriptTest", "transcriptType", "TestData");
+        downloadPath = ExcelUtil.getCellValue("TranscriptTest", "downloadPath", "TestData");
+        testName = ExcelUtil.getCellValue("TranscriptTest", "testName", "TestData");
     }
 }

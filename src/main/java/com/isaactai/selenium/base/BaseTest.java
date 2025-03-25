@@ -3,16 +3,14 @@ package com.isaactai.selenium.base;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.isaactai.selenium.pages.MicrosoftLoginPage;
+import com.isaactai.selenium.utils.ExcelUtil;
 import com.isaactai.selenium.utils.ExtentReportManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.*;
 
 /**
  * @author tisaac
@@ -23,6 +21,12 @@ public class BaseTest {
 
     protected static ExtentReports extent; // ExtentReports instance for reporting
     protected static ExtentTest test;
+
+    @BeforeClass
+    public void loadExcel() {
+        logger.debug("=== Load Excel file ===");
+        ExcelUtil.loadExcel("src/test/resources/dataTable.xlsx");
+    }
 
     @BeforeSuite
     public void setUpReport() {
