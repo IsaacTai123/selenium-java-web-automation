@@ -132,6 +132,7 @@ public class BasePage {
 
     // Wait until an element is available
     public WebElement waitUntilVisible(By locator) {
+        logger.info("Waiting for visibility of element: {}", locator);
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
@@ -140,6 +141,8 @@ public class BasePage {
     }
 
     public void scrollToElement(By locator) {
+        logger.debug("scroll to find element");
+        waitUntilVisible(locator);
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }
@@ -212,17 +215,11 @@ public class BasePage {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
     }
 
-    public void switchToIframe(String idOrName) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(idOrName));
-        logger.debug("Switched to iframe: " + idOrName);
-    }
-
     // Switch to iframe using locator
     public void switchToIframe(By locator) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        waitUntilVisible(locator);
         wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(locator));
-        logger.debug("Switched to iframe using locator: " + locator);
+        logger.debug("Switched to iframe using locator: {}", locator);
     }
 
     // Switch to iframe using WebElement
