@@ -27,9 +27,9 @@ It follows the Page Object Model (POM) pattern, with Excel-driven configuration 
 
 ## 📸 Visuals
 
-![Extent Report](images/extent_report.jpg)
+![Test Report1](images/test_report.jpg)
 
-![Extent Report](images/extent_report2.jpg)
+![Test Report2](images/test_report2.jpg)
 
 ![Duo Login](images/duo_authentication.png)
 
